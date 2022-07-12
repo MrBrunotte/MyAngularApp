@@ -1,4 +1,5 @@
 import { Component, OnInit } from "@angular/core";
+import { filter } from "rxjs";
 import { IProduct } from "./product";
 
 @Component({
@@ -12,7 +13,20 @@ export class ProductListComponent implements OnInit {
   imageWidth = 50;
   imageMargin: number = 2;
   showImage: boolean = false;
-  listFilter: string = 'cart';
+
+  private _listFilter: string = '';
+  get listFilter():string {
+    return this._listFilter;
+  }
+  set listFilter(value: string) {
+    this._listFilter = value;
+    console.log('In setter:', value);
+    this.filteredProducts = this.performFilter(value);
+  }
+
+  //Define a new filterdProducts property so that we don't loose the original data
+  filteredProducts: IProduct[] = [];
+
   products: IProduct[] = [
     {
       "productId": 1,
@@ -71,6 +85,12 @@ export class ProductListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('In OnInit');
+    this.listFilter = 'Cart';
+  }
+
+  performFilter(filterBy: string): IProduct[] {
+    filterBy = filterBy.toLocaleLowerCase();
+    return this.products.filter((product: IProduct) =>
+      product.productName.toLocaleLowerCase().includes(filterBy));
   }
 }
